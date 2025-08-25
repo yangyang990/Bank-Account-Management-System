@@ -11,6 +11,7 @@ Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-88
 **********|**********|**********/
 
 #include <iostream>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -105,9 +106,7 @@ void addAccount(Node *&head)
 {
     BankAccount newAcc = createAccount();
 
-<<<<<<< Updated upstream
-=======
-    // Check for duplicates(error handling)
+    // Check for duplicates
     Node *current = head;
     while (current != nullptr)
     {
@@ -124,7 +123,6 @@ void addAccount(Node *&head)
         current = current->next;
     }
 
->>>>>>> Stashed changes
     Node *iniAcc = new Node;
     iniAcc->account = newAcc;
     iniAcc->next = nullptr;
@@ -143,23 +141,8 @@ void addAccount(Node *&head)
         temp->next = iniAcc; // attach at the end
     }
 
-    // Check for duplicates
-    Node *current = head;
-    while (current != nullptr)
-    {
-        if (current->account.getAccountNo() == newAcc.getAccountNo())
-        {
-            cout << "Error: Account number already exists!\n";
-            return;
-        }
-        if (current->account.getCustomerName() == newAcc.getCustomerName())
-        {
-            cout << "Error: Customer name already exists!\n";
-            return;
-            current = current->next;
-        }
-    }
-};
+    cout << "Account added successfully!\n";
+}
 
 void displayAllAccounts(Node *head)
 {
@@ -175,7 +158,54 @@ void displayAllAccounts(Node *head)
         temp->account.display(); // use your BankAccount display()
         temp = temp->next;
     }
-};
+}
+
+// Search by Account Number (supports partial match too)
+void searchAccNo(Node *head, int accNo)
+{
+    Node *current = head;
+    bool found = false;
+
+    string query = to_string(accNo); // convert to string for partial match
+
+    while (current != nullptr)
+    {
+        string idStr = to_string(current->account.getAccountNo());
+        if (idStr.find(query) != string::npos) // partial match
+        {
+            current->account.display();
+            found = true;
+        }
+        current = current->next;
+    }
+
+    if (!found)
+    {
+        cout << "No account matches account number: " << accNo << endl;
+    }
+}
+
+// Search by Customer Name (supports partial match)
+void searchCusName(Node *head, const string &name)
+{
+    Node *current = head;
+    bool found = false;
+
+    while (current != nullptr)
+    {
+        if (current->account.getCustomerName().find(name) != string::npos) // substring match
+        {
+            current->account.display();
+            found = true;
+        }
+        current = current->next;
+    }
+
+    if (!found)
+    {
+        cout << "No account matches customer name: " << name << endl;
+    }
+}
 
 int main()
 {
@@ -196,7 +226,7 @@ int main()
         cout << endl;
         cout << " ****************************** " << endl;
         cout << endl;
-        cout << " Enter your choice: ";
+        cout << "Enter your choice: ";
 
         cin >> choice;
 
@@ -204,11 +234,41 @@ int main()
         {
         case 1:
             addAccount(head);
-            cout << "Account created successfully!\n";
             break;
 
         case 2:
             displayAllAccounts(head);
+            break;
+
+        case 5:
+            int searchChoice;
+            cout << "Search by: " << endl
+                 << "1. Account Number " << endl
+                 << "2. Customer Name" << endl;
+            cout << "Enter your choice: ";
+
+            cin >> searchChoice;
+
+            if (searchChoice == 1)
+            {
+                int accNo;
+                cout << "Enter account number: ";
+                cin >> accNo;
+                searchAccNo(head, accNo);
+            }
+            else if (searchChoice == 2)
+            {
+                string name;
+                cin.ignore(); // to discard the leftover newline (or other unwanted characters)
+                cout << "Enter customer name: ";
+                getline(cin, name);
+                searchCusName(head, name);
+            }
+            else
+            {
+                cout << "Invalid search choice.\n";
+            }
+
             break;
         }
     }
