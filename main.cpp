@@ -105,6 +105,26 @@ void addAccount(Node *&head)
 {
     BankAccount newAcc = createAccount();
 
+<<<<<<< Updated upstream
+=======
+    // Check for duplicates(error handling)
+    Node *current = head;
+    while (current != nullptr)
+    {
+        if (current->account.getAccountNo() == newAcc.getAccountNo())
+        {
+            cout << "Error: Account number already exists!\n";
+            return;
+        }
+        if (current->account.getCustomerName() == newAcc.getCustomerName())
+        {
+            cout << "Error: Customer name already exists!\n";
+            return;
+        }
+        current = current->next;
+    }
+
+>>>>>>> Stashed changes
     Node *iniAcc = new Node;
     iniAcc->account = newAcc;
     iniAcc->next = nullptr;
