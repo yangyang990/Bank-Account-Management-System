@@ -13,6 +13,7 @@ Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-88
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits> // for numeric_limits
 
 using namespace std;
 
@@ -71,21 +72,42 @@ public:
     }
 };
 
+int getValidInt(const string &prompt)
+{
+    int value;
+    while (true)
+    {
+        cout << prompt;
+        if (cin >> value) // valid int
+        {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer
+            return value;
+        }
+        else
+        {
+            cout << "Invalid input. Please enter a number.\n";
+            cin.clear();                                         // reset error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard bad input
+        }
+    }
+}
+
 BankAccount createAccount()
 {
-    int accountNumber;
+    int accountNumber = getValidInt("Enter Account Number: ");
+
     string customerName;
-    double balance;
-
-    cout << "Enter Account Number: ";
-    cin >> accountNumber;
-
-    cin.ignore();
     cout << "Enter Customer Name: ";
     getline(cin, customerName);
 
+    double balance;
     cout << "Enter Initial Balance: ";
-    cin >> balance;
+    while (!(cin >> balance))
+    {
+        cout << "Invalid input. Please enter a number.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
     if (balance < 0)
     {
@@ -142,6 +164,7 @@ void addAccount(Node *&head)
     }
 
     cout << "Account added successfully!\n";
+    cout << endl;
 }
 
 void displayAllAccounts(Node *head)
@@ -209,7 +232,6 @@ void searchCusName(Node *head, const string &name)
 
 int main()
 {
-    int choice;
     Node *head = nullptr; // start with empty list
 
     while (true)
@@ -226,9 +248,8 @@ int main()
         cout << endl;
         cout << " ****************************** " << endl;
         cout << endl;
-        cout << "Enter your choice: ";
 
-        cin >> choice;
+        int choice = getValidInt("Enter your choice: ");
 
         switch (choice)
         {
@@ -241,25 +262,18 @@ int main()
             break;
 
         case 5:
-            int searchChoice;
-            cout << "Search by: " << endl
-                 << "1. Account Number " << endl
-                 << "2. Customer Name" << endl;
-            cout << "Enter your choice: ";
-
-            cin >> searchChoice;
+        {
+            int searchChoice = getValidInt("Search by:\n1. Account Number\n2. Customer Name\nEnter your choice: ");
 
             if (searchChoice == 1)
             {
-                int accNo;
-                cout << "Enter account number: ";
-                cin >> accNo;
+                int accNo = getValidInt("Enter account number: ");
                 searchAccNo(head, accNo);
             }
             else if (searchChoice == 2)
             {
                 string name;
-                cin.ignore(); // to discard the leftover newline (or other unwanted characters)
+                // cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter customer name: ";
                 getline(cin, name);
                 searchCusName(head, name);
@@ -268,8 +282,16 @@ int main()
             {
                 cout << "Invalid search choice.\n";
             }
-
             break;
+        }
+
+        case 7:
+            cout << "Exiting program...\n";
+            return 0;
+
+        default:
+            cout << "Invalid choice. Try again.\n";
+            cout << endl;
         }
     }
 
