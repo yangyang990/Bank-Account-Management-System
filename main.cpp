@@ -11,6 +11,7 @@ Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-88
 **********|**********|**********/
 
 #include <iostream>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -159,6 +160,53 @@ void displayAllAccounts(Node *head)
     }
 }
 
+// Search by Account Number (supports partial match too)
+void searchAccNo(Node *head, int accNo)
+{
+    Node *current = head;
+    bool found = false;
+
+    string query = to_string(accNo); // convert to string for partial match
+
+    while (current != nullptr)
+    {
+        string idStr = to_string(current->account.getAccountNo());
+        if (idStr.find(query) != string::npos) // partial match
+        {
+            current->account.display();
+            found = true;
+        }
+        current = current->next;
+    }
+
+    if (!found)
+    {
+        cout << "No account matches account number: " << accNo << endl;
+    }
+}
+
+// Search by Customer Name (supports partial match)
+void searchCusName(Node *head, const string &name)
+{
+    Node *current = head;
+    bool found = false;
+
+    while (current != nullptr)
+    {
+        if (current->account.getCustomerName().find(name) != string::npos) // substring match
+        {
+            current->account.display();
+            found = true;
+        }
+        current = current->next;
+    }
+
+    if (!found)
+    {
+        cout << "No account matches customer name: " << name << endl;
+    }
+}
+
 int main()
 {
     int choice;
@@ -178,7 +226,7 @@ int main()
         cout << endl;
         cout << " ****************************** " << endl;
         cout << endl;
-        cout << " Enter your choice: ";
+        cout << "Enter your choice: ";
 
         cin >> choice;
 
@@ -190,6 +238,37 @@ int main()
 
         case 2:
             displayAllAccounts(head);
+            break;
+
+        case 5:
+            int searchChoice;
+            cout << "Search by: " << endl
+                 << "1. Account Number " << endl
+                 << "2. Customer Name" << endl;
+            cout << "Enter your choice: ";
+
+            cin >> searchChoice;
+
+            if (searchChoice == 1)
+            {
+                int accNo;
+                cout << "Enter account number: ";
+                cin >> accNo;
+                searchAccNo(head, accNo);
+            }
+            else if (searchChoice == 2)
+            {
+                string name;
+                cin.ignore(); // to discard the leftover newline (or other unwanted characters)
+                cout << "Enter customer name: ";
+                getline(cin, name);
+                searchCusName(head, name);
+            }
+            else
+            {
+                cout << "Invalid search choice.\n";
+            }
+
             break;
         }
     }
