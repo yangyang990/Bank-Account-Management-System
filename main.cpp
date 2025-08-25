@@ -105,6 +105,23 @@ void addAccount(Node *&head)
 {
     BankAccount newAcc = createAccount();
 
+    // Check for duplicates
+    Node *current = head;
+    while (current != nullptr)
+    {
+        if (current->account.getAccountNo() == newAcc.getAccountNo())
+        {
+            cout << "Error: Account number already exists!\n";
+            return;
+        }
+        if (current->account.getCustomerName() == newAcc.getCustomerName())
+        {
+            cout << "Error: Customer name already exists!\n";
+            return;
+        }
+        current = current->next;
+    }
+
     Node *iniAcc = new Node;
     iniAcc->account = newAcc;
     iniAcc->next = nullptr;
@@ -122,6 +139,8 @@ void addAccount(Node *&head)
         }
         temp->next = iniAcc; // attach at the end
     }
+
+    cout << "Account added successfully!\n";
 }
 
 void displayAllAccounts(Node *head)
@@ -167,7 +186,6 @@ int main()
         {
         case 1:
             addAccount(head);
-            cout << "Account created successfully!\n";
             break;
 
         case 2:
