@@ -42,6 +42,7 @@ public:
         {
             balance += amount;
             cout << "Deposited: " << amount << " | New Balance: " << balance << endl;
+            cout << endl;
         }
         else
         {
@@ -54,21 +55,25 @@ public:
         if (amount <= 0)
         {
             cout << "Invalid withdrawal amount!\n";
+            cout << endl;
             return false;
         }
         if (amount > balance)
         {
             cout << "Insufficient balance!\n";
+            cout << endl;
             return false;
         }
         balance -= amount;
         cout << "Withdrawn: " << amount << " | New Balance: " << balance << endl;
+        cout << endl;
         return true;
     }
 
     void display() const
     {
         cout << "Account #" << accountNumber << " | Name: " << customerName << " | Balance: " << balance << endl;
+        cout << endl;
     }
 };
 
@@ -230,6 +235,89 @@ void searchCusName(Node *head, const string &name)
     }
 }
 
+void depositMoney(Node *head)
+{
+    if (head == nullptr)
+    {
+        cout << "No accounts available!\n";
+        return;
+    }
+
+    int accNum = getValidInt("Enter Account Number: ");
+    Node *current = head;
+    bool found = false;
+
+    while (current != nullptr)
+    {
+        if (current->account.getAccountNo() == accNum)
+        {
+            double amount;
+            cout << "Enter amount to deposit: ";
+            while (!(cin >> amount))
+            {
+                cout << "Invalid input. Please enter a number.\n";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+
+            current->account.deposit(amount);
+            found = true;
+            break;
+        }
+        current = current->next;
+    }
+
+    if (!found)
+    {
+        cout << "Account not found!\n";
+    }
+}
+
+void withdrawMoney(Node *head)
+{
+    if (head == nullptr)
+    {
+        cout << "No accounts available!\n";
+        return;
+    }
+
+    int accNum = getValidInt("Enter Account Number: ");
+    Node *current = head;
+    bool found = false;
+
+    while (current != nullptr)
+    {
+        if (current->account.getAccountNo() == accNum)
+        {
+            double amount;
+            cout << "Enter amount to withdraw: ";
+            while (!(cin >> amount))
+            {
+                cout << "Invalid input. Please enter a number.\n";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+
+            if (amount > current->account.getBalance())
+            {
+                cout << "Insufficient balance!\n";
+            }
+            else
+            {
+                current->account.withdraw(amount);
+            }
+            found = true;
+            break;
+        }
+        current = current->next;
+    }
+
+    if (!found)
+    {
+        cout << "Account not found!\n";
+    }
+}
+
 int main()
 {
     Node *head = nullptr; // start with empty list
@@ -259,6 +347,14 @@ int main()
 
         case 2:
             displayAllAccounts(head);
+            break;
+
+        case 3:
+            depositMoney(head);
+            break;
+
+        case 4:
+            withdrawMoney(head);
             break;
 
         case 5:
