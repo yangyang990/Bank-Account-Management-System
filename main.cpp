@@ -95,10 +95,55 @@ BankAccount createAccount()
     return BankAccount(accountNumber, customerName, balance);
 }
 
+struct Node
+{
+    BankAccount account;
+    Node *next;
+};
+
+void addAccount(Node *&head)
+{
+    BankAccount newAcc = createAccount();
+
+    Node *iniAcc = new Node;
+    iniAcc->account = newAcc;
+    iniAcc->next = nullptr;
+
+    if (head == nullptr)
+    {
+        head = iniAcc; // first node
+    }
+    else
+    {
+        Node *temp = head;
+        while (temp->next != nullptr)
+        {
+            temp = temp->next;
+        }
+        temp->next = iniAcc; // attach at the end
+    }
+}
+
+void displayAllAccounts(Node *head)
+{
+    if (head == nullptr)
+    {
+        cout << "No accounts to display.\n";
+        return;
+    }
+
+    Node *temp = head;
+    while (temp != nullptr)
+    {
+        temp->account.display(); // use your BankAccount display()
+        temp = temp->next;
+    }
+}
+
 int main()
 {
     int choice;
-    BankAccount account; // for now just one account (later we use linked list)
+    Node *head = nullptr; // start with empty list
 
     while (true)
     {
@@ -121,8 +166,12 @@ int main()
         switch (choice)
         {
         case 1:
-            account = createAccount(); //  actually calls your function
+            addAccount(head);
             cout << "Account created successfully!\n";
+            break;
+
+        case 2:
+            displayAllAccounts(head);
             break;
         }
     }
