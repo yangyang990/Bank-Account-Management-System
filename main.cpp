@@ -54,14 +54,12 @@ public:
     {
         if (amount <= 0)
         {
-            cout << "Invalid withdrawal amount!\n";
-            cout << endl;
+            cout << "Invalid withdrawal amount!\n\n";
             return false;
         }
         if (amount > balance)
         {
-            cout << "Insufficient balance!\n";
-            cout << endl;
+            cout << "Insufficient balance!\n\n";
             return false;
         }
         balance -= amount;
@@ -317,6 +315,7 @@ void withdrawMoney(Node *head)
         cout << "Account not found!\n";
     }
 }
+
 void deleteAccount(Node *&head)
 {
     if (head == nullptr)
@@ -344,8 +343,7 @@ void deleteAccount(Node *&head)
             }
 
             delete current;
-            cout << "Account deleted successfully!\n";
-            cout << endl;
+            cout << "Account deleted successfully!\n\n";
             return;
         }
         prev = current;
@@ -412,8 +410,7 @@ int main()
             }
             else
             {
-                cout << "Invalid search choice.\n";
-                cout << endl;
+                cout << "Invalid search choice.\n\n";
             }
             break;
         }
@@ -423,13 +420,11 @@ int main()
             break;
 
         case 7:
-            cout << "Exiting program...\n";
-            cout << endl;
+            cout << "Exiting program...\n\n";
             return 0;
 
         default:
-            cout << "Invalid choice. Try again.\n";
-            cout << endl;
+            cout << "Invalid choice. Try again.\n\n";
         }
     }
 
