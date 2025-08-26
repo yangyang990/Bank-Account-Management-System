@@ -317,6 +317,43 @@ void withdrawMoney(Node *head)
         cout << "Account not found!\n";
     }
 }
+void deleteAccount(Node *&head)
+{
+    if (head == nullptr)
+    {
+        cout << "No accounts to delete!\n";
+        return;
+    }
+
+    int accNum = getValidInt("Enter Account Number to delete: ");
+    Node *current = head;
+    Node *prev = nullptr;
+
+    while (current != nullptr)
+    {
+        if (current->account.getAccountNo() == accNum)
+        {
+            if (prev == nullptr)
+            {
+                // deleting the head
+                head = current->next;
+            }
+            else
+            {
+                prev->next = current->next;
+            }
+
+            delete current;
+            cout << "Account deleted successfully!\n";
+            cout << endl;
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    cout << "Account not found!\n";
+}
 
 int main()
 {
@@ -377,12 +414,18 @@ int main()
             else
             {
                 cout << "Invalid search choice.\n";
+                cout << endl;
             }
             break;
         }
 
+        case 6:
+            deleteAccount(head);
+            break;
+
         case 7:
             cout << "Exiting program...\n";
+            cout << endl;
             return 0;
 
         default:
