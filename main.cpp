@@ -174,7 +174,7 @@ void displayAllAccounts(Node *head)
 {
     if (head == nullptr)
     {
-        cout << "No accounts to display.\n";
+        cout << "No accounts to display.\n\n";
         return;
     }
 
@@ -291,14 +291,14 @@ void withdrawMoney(Node *head)
             cout << "Enter amount to withdraw: ";
             while (!(cin >> amount))
             {
-                cout << "Invalid input. Please enter a number.\n";
+                cout << "Invalid input. Please enter a number.\n\n";
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
 
             if (amount > current->account.getBalance())
             {
-                cout << "Insufficient balance!\n";
+                cout << "Insufficient balance!\n\n";
             }
             else
             {
@@ -320,7 +320,7 @@ void deleteAccount(Node *&head)
 {
     if (head == nullptr)
     {
-        cout << "No accounts to delete!\n";
+        cout << "No accounts to delete!\n\n";
         return;
     }
 
@@ -394,6 +394,7 @@ int main()
 
         case 5:
         {
+            // Search through all accounts to find the matching one
             int searchChoice = getValidInt("Search by:\n1. Account Number\n2. Customer Name\nEnter your choice: ");
 
             if (searchChoice == 1)
