@@ -181,7 +181,7 @@ void displayAllAccounts(Node *head)
     Node *temp = head;
     while (temp != nullptr)
     {
-        temp->account.display(); // use your BankAccount display()
+        temp->account.display(); // use BankAccount display()
         temp = temp->next;
     }
 }
@@ -353,6 +353,17 @@ void deleteAccount(Node *&head)
     cout << "Account not found!\n";
 }
 
+// Free all allocated memory before exiting for cleaner program
+void freeAllAccounts(Node *&head)
+{
+    while (head != nullptr)
+    {
+        Node *temp = head;
+        head = head->next;
+        delete temp;
+    }
+}
+
 int main()
 {
     Node *head = nullptr; // start with empty list
@@ -422,6 +433,7 @@ int main()
 
         case 7:
             cout << "Exiting program...\n\n";
+            freeAllAccounts(head); // clean up before exiting
             return 0;
 
         default:
