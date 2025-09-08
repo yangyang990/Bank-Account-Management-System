@@ -14,6 +14,7 @@ Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-88
 #include <vector>
 #include <string>
 #include <limits> // for numeric_limits
+#include <algorithm>
 
 using namespace std;
 
@@ -103,6 +104,15 @@ BankAccount createAccount()
     cout << "Enter Customer Name: ";
     getline(cin, customerName);
 
+    // check for customer name(wont accept only int)
+    bool allDigits = !customerName.empty() && all_of(customerName.begin(), customerName.end(), ::isdigit);
+
+    if (allDigits)
+    {
+        cout << "Invalid name! Customer name cannot be only numbers.\n";
+        return createAccount(); // ask again (recursion)
+    }
+
     double balance;
     cout << "Enter Initial Balance: ";
     while (!(cin >> balance))
@@ -137,12 +147,12 @@ void addAccount(Node *&head)
     {
         if (current->account.getAccountNo() == newAcc.getAccountNo())
         {
-            cout << "Error: Account number already exists!\n";
+            cout << "Error: Account number already exists!\n\n";
             return;
         }
         if (current->account.getCustomerName() == newAcc.getCustomerName())
         {
-            cout << "Error: Customer name already exists!\n";
+            cout << "Error: Customer name already exists!\n\n";
             return;
         }
         current = current->next;
@@ -267,7 +277,7 @@ void depositMoney(Node *head)
 
     if (!found)
     {
-        cout << "Account not found!\n";
+        cout << "Account not found!\n\n";
     }
 }
 
