@@ -18,23 +18,36 @@ Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-88
 
 using namespace std;
 
+class Customer
+{
+private:
+    int customerId;
+    string name;
+
+public:
+    Customer(int id = 0, string n = " ") : customerId(id), name(n) {}
+
+    int getId() const { return customerId; }
+    string getName() const { return name; }
+
+    void display() const
+    {
+        cout << "Customer #" << customerId << " | Name: " << name;
+    }
+};
+
 class BankAccount
 {
 private:
     int accountNumber;
-    string customerName;
+    Customer customer;
     double balance;
 
 public:
-    BankAccount(int accNo = 0, string name = " ", double bal = 0.0)
-    {
-        accountNumber = accNo;
-        customerName = name;
-        balance = bal;
-    }
+    BankAccount(int accNo = 0, Customer c = Customer(), double bal = 0.0) : accountNumber(accNo), customer(c), balance(bal) {}
 
     int getAccountNo() const { return accountNumber; }
-    string getCustomerName() const { return customerName; }
+    Customer getCustomer() const { return customer; }
     double getBalance() const { return balance; }
 
     void deposit(double amount)
@@ -42,8 +55,8 @@ public:
         if (amount > 0)
         {
             balance += amount;
-            cout << "Deposited: " << amount << " | New Balance: " << balance << endl;
-            cout << endl;
+            cout << "Deposited: " << amount << " | New Balance: " << balance << endl
+                 << endl;
         }
         else
         {
@@ -71,55 +84,78 @@ public:
 
     void display() const
     {
-        cout << "Account #" << accountNumber << " | Name: " << customerName << " | Balance: " << balance << endl;
-        cout << endl;
+        cout << "Account #" << accountNumber << " | ";
+        customer.display();
+        cout << " | Balance: " << balance << endl
+             << endl;
     }
 };
 
 int getValidInt(const string &prompt)
 {
-    int value;
+    string input;
     while (true)
     {
         cout << prompt;
-        if (cin >> value) // valid int
+        getline(cin, input);
+
+        // check all characters are digits
+        if (!input.empty() && all_of(input.begin(), input.end(), ::isdigit))
         {
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer
-            return value;
+            return stoi(input);
         }
-        else
-        {
-            cout << "Invalid input. Please enter a number.\n";
-            cin.clear();                                         // reset error flag
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard bad input
-        }
+        cout << "Invalid input. Please enter a number.\n";
     }
 }
 
 BankAccount createAccount()
 {
     int accountNumber = getValidInt("Enter Account Number: ");
+    int customerId = getValidInt("Enter Customer ID: ");
 
     string customerName;
-    cout << "Enter Customer Name: ";
-    getline(cin, customerName);
-
-    // check for customer name(wont accept only int)
-    bool allDigits = !customerName.empty() && all_of(customerName.begin(), customerName.end(), ::isdigit);
-
-    if (allDigits)
+    while (true)
     {
-        cout << "Invalid name! Customer name cannot be only numbers.\n";
-        return createAccount(); // ask again (recursion)
+        cout << "Enter Customer Name: ";
+        getline(cin, customerName);
+
+        // check not empty and not only digits
+        bool allDigits = !customerName.empty() &&
+                         all_of(customerName.begin(), customerName.end(), ::isdigit);
+
+        if (!customerName.empty() && !allDigits)
+            break;
+        cout << "Invalid name! Customer name cannot be empty or only numbers.\n";
     }
 
-    double balance;
-    cout << "Enter Initial Balance: ";
-    while (!(cin >> balance))
+    string balInput;
+    double balance = 0.0;
+    while (true)
     {
-        cout << "Invalid input. Please enter a number.\n";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Enter Initial Balance: ";
+        getline(cin, balInput);
+
+        // check valid number (only digits)
+        bool ok = true, dotSeen = false;
+        for (char c : balInput)
+        {
+            if (isdigit(c))
+                continue;
+            if (c == '.' && !dotSeen)
+            {
+                dotSeen = true;
+                continue;
+            }
+            ok = false;
+            break;
+        }
+
+        if (ok && !balInput.empty())
+        {
+            balance = stod(balInput);
+            break;
+        }
+        cout << "Invalid input. Please enter a valid number.\n";
     }
 
     if (balance < 0)
@@ -128,7 +164,7 @@ BankAccount createAccount()
         balance = 0;
     }
 
-    return BankAccount(accountNumber, customerName, balance);
+    return BankAccount(accountNumber, Customer(customerId, customerName), balance);
 }
 
 struct Node
@@ -150,7 +186,7 @@ void addAccount(Node *&head)
             cout << "Error: Account number already exists!\n\n";
             return;
         }
-        if (current->account.getCustomerName() == newAcc.getCustomerName())
+        if (current->account.getCustomer().getName() == newAcc.getCustomer().getName())
         {
             cout << "Error: Customer name already exists!\n\n";
             return;
@@ -176,8 +212,7 @@ void addAccount(Node *&head)
         temp->next = iniAcc; // attach at the end
     }
 
-    cout << "Account added successfully!\n";
-    cout << endl;
+    cout << "Account added successfully!\n\n";
 }
 
 void displayAllAccounts(Node *head)
@@ -229,7 +264,7 @@ void searchCusName(Node *head, const string &name)
 
     while (current != nullptr)
     {
-        if (current->account.getCustomerName().find(name) != string::npos) // substring match
+        if (current->account.getCustomer().getName().find(name) != string::npos)
         {
             current->account.display();
             found = true;
