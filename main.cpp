@@ -15,6 +15,7 @@ Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-88
 #include <string>
 #include <limits> // for numeric_limits
 #include <algorithm>
+#include <fstream> // file handling
 
 using namespace std;
 
@@ -108,34 +109,66 @@ int getValidInt(const string &prompt)
     }
 }
 
-BankAccount createAccount()
+void saveAccountToFile(const BankAccount &acc)
 {
-    int accountNumber = getValidInt("Enter Account Number: ");
-    int customerId = getValidInt("Enter Customer ID: ");
+    ofstream outFile("accounts.txt", ios::app); // append mode
+    if (!outFile)
+    {
+        cout << "Error opening file for writing!\n";
+        return;
+    }
 
-    string customerName;
+    outFile << acc.getAccountNo() << ","
+            << acc.getCustomer().getId() << ","
+            << acc.getCustomer().getName() << ","
+            << acc.getBalance() << "\n";
+
+    outFile.close();
+}
+
+BankAccount createAccount(bool &cancelled)
+{
+    string accInput, cusIdInput, customerName, balInput;
+    int accountNumber = 0, customerId = 0;
+    double balance = 0.0;
+    cancelled = false;
+
     while (true)
     {
+        vector<string> errors;
+
+        cout << "\n--- Create New Account ---\n";
+        cout << "Enter Account Number: ";
+        getline(cin, accInput);
+
+        cout << "Enter Customer ID: ";
+        getline(cin, cusIdInput);
+
         cout << "Enter Customer Name: ";
         getline(cin, customerName);
 
-        // check not empty and not only digits
-        bool allDigits = !customerName.empty() &&
-                         all_of(customerName.begin(), customerName.end(), ::isdigit);
-
-        if (!customerName.empty() && !allDigits)
-            break;
-        cout << "Invalid name! Customer name cannot be empty or only numbers.\n";
-    }
-
-    string balInput;
-    double balance = 0.0;
-    while (true)
-    {
         cout << "Enter Initial Balance: ";
         getline(cin, balInput);
 
-        // check valid number (only digits)
+        // Validate Account Number
+        if (!accInput.empty() && all_of(accInput.begin(), accInput.end(), ::isdigit))
+            accountNumber = stoi(accInput);
+        else
+            errors.push_back("Account Number must be a valid number.");
+
+        // Validate Customer ID
+        if (!cusIdInput.empty() && all_of(cusIdInput.begin(), cusIdInput.end(), ::isdigit))
+            customerId = stoi(cusIdInput);
+        else
+            errors.push_back("Customer ID must be a valid number.");
+
+        // Validate Customer Name
+        bool allDigits = !customerName.empty() &&
+                         all_of(customerName.begin(), customerName.end(), ::isdigit);
+        if (customerName.empty() || allDigits)
+            errors.push_back("Customer Name cannot be empty or only numbers.");
+
+        // Validate Balance
         bool ok = true, dotSeen = false;
         for (char c : balInput)
         {
@@ -149,22 +182,37 @@ BankAccount createAccount()
             ok = false;
             break;
         }
-
         if (ok && !balInput.empty())
-        {
             balance = stod(balInput);
-            break;
+        else
+            errors.push_back("Initial Balance must be a valid number.");
+        if (balance < 0)
+        {
+            errors.push_back("Initial Balance cannot be negative.");
+            balance = 0;
         }
-        cout << "Invalid input. Please enter a valid number.\n";
-    }
 
-    if (balance < 0)
-    {
-        cout << "Balance cannot be negative. Setting to 0.\n";
-        balance = 0;
-    }
+        // If no errors → return new account
+        if (errors.empty())
+        {
+            return BankAccount(accountNumber, Customer(customerId, customerName), balance);
+        }
 
-    return BankAccount(accountNumber, Customer(customerId, customerName), balance);
+        // Show all error messages at once
+        cout << "\nErrors:\n";
+        for (const auto &err : errors)
+            cout << "- " << err << "\n";
+
+        // Ask user if they want to retry or quit to main menu
+        cout << "\nDo you want to try again? (y/n): ";
+        string choice;
+        getline(cin, choice);
+        if (choice == "n" || choice == "N")
+        {
+            cancelled = true;
+            return BankAccount(); // return empty account
+        }
+    }
 }
 
 struct Node
@@ -175,7 +223,14 @@ struct Node
 
 void addAccount(Node *&head)
 {
-    BankAccount newAcc = createAccount();
+    bool cancelled = false;
+    BankAccount newAcc = createAccount(cancelled);
+
+    if (cancelled)
+    {
+        cout << "Returning to main menu...\n\n";
+        return;
+    }
 
     // Check for duplicates
     Node *current = head;
@@ -199,20 +254,83 @@ void addAccount(Node *&head)
     iniAcc->next = nullptr;
 
     if (head == nullptr)
-    {
-        head = iniAcc; // first node
-    }
+        head = iniAcc;
     else
     {
         Node *temp = head;
         while (temp->next != nullptr)
-        {
             temp = temp->next;
-        }
-        temp->next = iniAcc; // attach at the end
+        temp->next = iniAcc;
     }
 
-    cout << "Account added successfully!\n\n";
+    saveAccountToFile(newAcc); // save to file
+    cout << "Account added successfully and saved to file!\n\n";
+}
+
+void updateFile(Node *head)
+{
+    ofstream outFile("accounts.txt");
+    if (!outFile)
+    {
+        cout << "Error opening file for writing!\n";
+        return;
+    }
+    Node *current = head;
+    while (current != nullptr)
+    {
+        outFile << current->account.getAccountNo() << ","
+                << current->account.getCustomer().getId() << ","
+                << current->account.getCustomer().getName() << ","
+                << current->account.getBalance() << "\n";
+        current = current->next;
+    }
+    outFile.close();
+}
+
+void loadAccountsFromFile(Node *&head)
+{
+    ifstream inFile("accounts.txt");
+    if (!inFile)
+    {
+        // file may not exist on first run, just return
+        return;
+    }
+
+    int accNo, cusId;
+    string name;
+    double balance;
+
+    string line;
+    while (getline(inFile, line))
+    {
+        if (line.empty())
+            continue;
+
+        size_t pos1 = line.find(',');
+        size_t pos2 = line.find(',', pos1 + 1);
+        size_t pos3 = line.find(',', pos2 + 1);
+
+        accNo = stoi(line.substr(0, pos1));
+        cusId = stoi(line.substr(pos1 + 1, pos2 - pos1 - 1));
+        name = line.substr(pos2 + 1, pos3 - pos2 - 1);
+        balance = stod(line.substr(pos3 + 1));
+
+        BankAccount acc(accNo, Customer(cusId, name), balance);
+
+        // insert into linked list
+        Node *newNode = new Node{acc, nullptr};
+        if (head == nullptr)
+            head = newNode;
+        else
+        {
+            Node *temp = head;
+            while (temp->next != nullptr)
+                temp = temp->next;
+            temp->next = newNode;
+        }
+    }
+
+    inFile.close();
 }
 
 void displayAllAccounts(Node *head)
@@ -304,6 +422,7 @@ void depositMoney(Node *head)
             }
 
             current->account.deposit(amount);
+            updateFile(head);
             found = true;
             break;
         }
@@ -348,6 +467,7 @@ void withdrawMoney(Node *head)
             else
             {
                 current->account.withdraw(amount);
+                updateFile(head);
             }
             found = true;
             break;
@@ -412,6 +532,9 @@ void freeAllAccounts(Node *&head)
 int main()
 {
     Node *head = nullptr; // start with empty list
+
+    // Load saved accounts into memory at startup
+    loadAccountsFromFile(head);
 
     while (true)
     {
