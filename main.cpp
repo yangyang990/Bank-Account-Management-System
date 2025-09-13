@@ -5,7 +5,7 @@ Trimester: 2420
 Lecture Class:
 Tutorial Class:
 Trimester: 2430
-Member_1: |  |  |
+Member_1: 243UC247BZ | LimJianFeng | Lim.Jian.Feng@student.mmu.edu.my | 019-9002733
 Member_2: 242UC244PP | Nicholas Beh Zhi Yang | NICHOLAS.BEH.ZHI@student.mmu.edu.my | 011-65215166
 Member_3: 242UC24551 | LOW ZHENG HAO | LOW.ZHENG.HAO@student.mmu.edu.my | 013-8888444
 **********|**********|**********/
